@@ -1,5 +1,5 @@
 {
-  "name": "@repo/eslint-config",
+  "name": "@template/eslint-config",
   "type": "module",
   "private": true,
   "exports": {

@@ -1,6 +1,6 @@
 import type { RequestHandler } from "express";
 
-import type { DatabaseClient } from "@repo/database";
+import type { DatabaseClient } from "@template/database";
 
 import { sendSuccess } from "../../core/responses/api-response.js";
 import { checkDemoConnection } from "./demo.service.js";

@@ -1,5 +1,5 @@
 {
-  "name": "@repo/web",
+  "name": "@template/web",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -17,8 +17,8 @@
     "zod": "4.4.3"
   },
   "devDependencies": {
-    "@repo/eslint-config": "workspace:*",
-    "@repo/typescript-config": "workspace:*",
+    "@template/eslint-config": "workspace:*",
+    "@template/typescript-config": "workspace:*",
     "@tailwindcss/postcss": "4.3.3",
     "@types/node": "24.13.3",
     "@types/react": "19.2.18",

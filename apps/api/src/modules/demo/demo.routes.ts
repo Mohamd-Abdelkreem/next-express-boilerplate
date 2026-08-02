@@ -1,6 +1,6 @@
 import { Router } from "express";
 
-import type { DatabaseClient } from "@repo/database";
+import type { DatabaseClient } from "@template/database";
 
 import { createDemoConnectionHandler } from "./demo.controller.js";
 

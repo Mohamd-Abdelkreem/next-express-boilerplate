@@ -9,7 +9,7 @@ export default function HomePage() {
           T/
         </div>
         <div>
-          <p className="eyebrow">Tas3eer Pro / Platform</p>
+          <p className="eyebrow">Full-Stack Boilerplate / Template</p>
           <h1>Build the product, not the plumbing.</h1>
           <p className="hero__summary">
             A modular TypeScript monorepo with the runtime, database, security,

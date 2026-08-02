@@ -1,7 +1,7 @@
 import { Router } from "express";
 import type { Logger } from "pino";
 
-import type { DatabaseClient } from "@repo/database";
+import type { DatabaseClient } from "@template/database";
 
 import { createReadinessHandler, getLiveness } from "./health.controller.js";
 

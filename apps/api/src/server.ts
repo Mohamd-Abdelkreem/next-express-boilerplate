@@ -1,4 +1,4 @@
-import { createDatabaseClient } from "@repo/database";
+import { createDatabaseClient } from "@template/database";
 
 import { createApp } from "./app.js";
 import { environment } from "./core/config/environment.js";

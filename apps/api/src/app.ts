@@ -5,7 +5,7 @@ import helmet from "helmet";
 import { pinoHttp } from "pino-http";
 import type { Logger } from "pino";
 
-import type { DatabaseClient } from "@repo/database";
+import type { DatabaseClient } from "@template/database";
 
 import type { Environment } from "./core/config/environment.js";
 import { ForbiddenError } from "./core/errors/forbidden-error.js";

@@ -1,4 +1,4 @@
-# Tas3eer Pro Platform Boilerplate
+# Full-Stack TypeScript Boilerplate
 
 A reusable, business-logic-free TypeScript monorepo for building a Next.js web
 application and an Express API backed by PostgreSQL.
@@ -116,8 +116,8 @@ secret manager instead of Compose environment files.
 
 ```powershell
 pnpm build
-pnpm --filter @repo/api start
-pnpm --filter @repo/web start
+pnpm --filter @template/api start
+pnpm --filter @template/web start
 ```
 
 The API production command executes compiled JavaScript only, with source-map

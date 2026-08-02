@@ -1,4 +1,4 @@
-import type { DatabaseClient, DemoMessage } from "@repo/database";
+import type { DatabaseClient, DemoMessage } from "@template/database";
 
 export type DemoConnectionResult = Readonly<{
   api: "connected";

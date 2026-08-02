@@ -1,4 +1,4 @@
-name: tas3eer-pro
+name: full-stack-boilerplate
 
 services:
   postgres:

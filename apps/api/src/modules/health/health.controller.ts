@@ -1,7 +1,7 @@
 import type { RequestHandler } from "express";
 import type { Logger } from "pino";
 
-import type { DatabaseClient } from "@repo/database";
+import type { DatabaseClient } from "@template/database";
 
 import { ServiceUnavailableError } from "../../core/errors/service-unavailable-error.js";
 import { sendError, sendSuccess } from "../../core/responses/api-response.js";

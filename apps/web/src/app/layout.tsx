@@ -5,8 +5,8 @@ import "@/styles/globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "Tas3eer Pro",
-    template: "%s | Tas3eer Pro",
+    default: "Full-Stack Boilerplate",
+    template: "%s | Full-Stack Boilerplate",
   },
   description: "A reusable full-stack TypeScript platform foundation.",
 };

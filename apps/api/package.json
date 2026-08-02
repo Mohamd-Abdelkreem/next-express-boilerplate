@@ -1,5 +1,5 @@
 {
-  "name": "@repo/api",
+  "name": "@template/api",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -13,7 +13,7 @@
     "check-types": "tsc --noEmit"
   },
   "dependencies": {
-    "@repo/database": "workspace:*",
+    "@template/database": "workspace:*",
     "compression": "1.8.1",
     "cors": "2.8.6",
     "dotenv": "17.4.2",
@@ -25,8 +25,8 @@
     "zod": "4.4.3"
   },
   "devDependencies": {
-    "@repo/eslint-config": "workspace:*",
-    "@repo/typescript-config": "workspace:*",
+    "@template/eslint-config": "workspace:*",
+    "@template/typescript-config": "workspace:*",
     "@types/compression": "1.8.1",
     "@types/cors": "2.8.19",
     "@types/express": "5.0.6",

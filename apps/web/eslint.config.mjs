@@ -1,3 +1,3 @@
-import { createNextConfig } from "@repo/eslint-config/next";
+import { createNextConfig } from "@template/eslint-config/next";
 
 export default createNextConfig({ tsconfigRootDir: import.meta.dirname });

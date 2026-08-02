@@ -1,4 +1,4 @@
-import type { DatabaseClient } from "@repo/database";
+import type { DatabaseClient } from "@template/database";
 
 export const checkDatabaseReadiness = async (
   database: DatabaseClient,

@@ -1,4 +1,4 @@
-import config from "@repo/prettier-config";
+import config from "@template/prettier-config";
 
 export default {
   ...config,

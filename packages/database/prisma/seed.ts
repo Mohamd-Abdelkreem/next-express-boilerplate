@@ -10,15 +10,15 @@ const database = createDatabaseClient(databaseUrl);
 
 try {
   const demoMessage = await database.demoMessage.upsert({
-    where: { slug: "platform-ready" },
+    where: { slug: "template-ready" },
     update: {
-      title: "Tas3eer Pro is connected",
+      title: "The boilerplate is connected",
       message:
         "This record travelled from PostgreSQL through Prisma and Express.",
     },
     create: {
-      slug: "platform-ready",
-      title: "Tas3eer Pro is connected",
+      slug: "template-ready",
+      title: "The boilerplate is connected",
       message:
         "This record travelled from PostgreSQL through Prisma and Express.",
     },
