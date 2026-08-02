@@ -7,6 +7,8 @@ import { ApiClientError } from "@/services/api-client";
 
 type DemoConnectionResponse = Readonly<{
   success: true;
+  statusCode: number;
+  message: string;
   data: {
     api: "connected";
     database: "connected";
@@ -21,6 +23,8 @@ type DemoConnectionResponse = Readonly<{
     checkedAt: string;
   };
   requestId: string;
+  timestamp: string;
+  path: string;
 }>;
 
 type ConnectionState =

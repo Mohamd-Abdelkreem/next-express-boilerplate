@@ -1,13 +1,23 @@
-import type { RequestHandler } from "express";
+import type { Request, Response } from "express";
 
-import type { DatabaseClient } from "@template/database";
+import { ResponseHelper } from "../../core/responses/api-response.js";
+import type { DemoService } from "./demo.service.js";
 
-import { sendSuccess } from "../../core/responses/api-response.js";
-import { checkDemoConnection } from "./demo.service.js";
+export class DemoController {
+  constructor(private readonly demoService: DemoService) {}
 
-export const createDemoConnectionHandler =
-  (database: DatabaseClient): RequestHandler =>
-  async (request, response) => {
-    const result = await checkDemoConnection(database);
-    return sendSuccess(request, response, 200, result);
+  checkConnection = async (
+    request: Request,
+    response: Response,
+  ): Promise<Response> => {
+    const result = await this.demoService.checkConnection();
+
+    return ResponseHelper.ok(
+      response,
+      result,
+      "Full-stack connection verified.",
+      request.path,
+      request.requestId,
+    );
   };
+}

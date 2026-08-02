@@ -1,37 +1,38 @@
-import type { RequestHandler } from "express";
-import type { Logger } from "pino";
+import type { Request, Response } from "express";
 
-import type { DatabaseClient } from "@template/database";
+import { HTTP_STATUS } from "../../core/constants/http-status.constants.js";
+import { ResponseHelper } from "../../core/responses/api-response.js";
+import type { HealthService } from "./health.service.js";
 
-import { ServiceUnavailableError } from "../../core/errors/service-unavailable-error.js";
-import { sendError, sendSuccess } from "../../core/responses/api-response.js";
-import { checkDatabaseReadiness } from "./health.service.js";
+export class HealthController {
+  constructor(private readonly healthService: HealthService) {}
 
-export const getLiveness: RequestHandler = (request, response) =>
-  sendSuccess(request, response, 200, {
-    status: "ok",
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime(),
-  });
+  live = (request: Request, response: Response): Response => {
+    const health = this.healthService.getLiveness();
 
-export const createReadinessHandler =
-  (database: DatabaseClient, logger: Logger): RequestHandler =>
-  async (request, response) => {
-    try {
-      await checkDatabaseReadiness(database);
-      return sendSuccess(request, response, 200, {
-        status: "ready",
-        timestamp: new Date().toISOString(),
-      });
-    } catch {
-      logger.warn(
-        { requestId: request.requestId },
-        "Database readiness check failed.",
-      );
-      return sendError(
-        request,
-        response,
-        new ServiceUnavailableError("The API is not ready to receive traffic."),
-      );
-    }
+    return ResponseHelper.ok(
+      response,
+      health,
+      "Service is alive.",
+      request.path,
+      request.requestId,
+    );
   };
+
+  ready = async (request: Request, response: Response): Promise<Response> => {
+    const health = await this.healthService.checkHealth();
+    const statusCode =
+      health.status === "ok" ? HTTP_STATUS.OK : HTTP_STATUS.SERVICE_UNAVAILABLE;
+
+    return ResponseHelper.success(
+      response,
+      health,
+      health.status === "ok"
+        ? "Service is ready."
+        : "Service dependencies are degraded.",
+      statusCode,
+      request.path,
+      request.requestId,
+    );
+  };
+}

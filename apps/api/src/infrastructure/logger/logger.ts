@@ -1,6 +1,7 @@
 import pino, { type Logger } from "pino";
 
-import type { Environment } from "../../core/config/environment.js";
+import { appConfig } from "../../core/config/app.config.js";
+import { loggerConfig } from "../../core/config/logger.config.js";
 
 const redactPaths = [
   "req.headers.authorization",
@@ -13,11 +14,11 @@ const redactPaths = [
   "token",
 ];
 
-export const createLogger = (environment: Environment): Logger =>
+export const createLogger = (): Logger =>
   pino({
-    level: environment.LOG_LEVEL,
+    level: loggerConfig.level,
     redact: { paths: redactPaths, censor: "[REDACTED]" },
-    ...(environment.NODE_ENV === "development"
+    ...(appConfig.isDevelopment
       ? {
           transport: {
             target: "pino-pretty",
@@ -26,3 +27,5 @@ export const createLogger = (environment: Environment): Logger =>
         }
       : {}),
   });
+
+export const logger = createLogger();

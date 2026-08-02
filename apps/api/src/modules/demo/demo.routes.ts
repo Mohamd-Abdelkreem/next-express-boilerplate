@@ -1,11 +1,11 @@
 import { Router } from "express";
 
-import type { DatabaseClient } from "@template/database";
+import type { DemoController } from "./demo.controller.js";
 
-import { createDemoConnectionHandler } from "./demo.controller.js";
-
-export const createDemoRouter = (database: DatabaseClient): Router => {
+export const demoRoutes = (controller: DemoController): Router => {
   const router = Router();
-  router.get("/connection", createDemoConnectionHandler(database));
+
+  router.get("/connection", controller.checkConnection);
+
   return router;
 };

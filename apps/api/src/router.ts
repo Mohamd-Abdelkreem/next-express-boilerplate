@@ -1,17 +1,27 @@
 import { Router } from "express";
-import type { Logger } from "pino";
 
 import type { DatabaseClient } from "@template/database";
 
-import { createDemoRouter } from "./modules/demo/demo.routes.js";
-import { createHealthRouter } from "./modules/health/health.routes.js";
+import {
+  DemoController,
+  demoRoutes,
+  DemoService,
+  HealthController,
+  healthRoutes,
+  HealthService,
+} from "./modules/index.js";
 
-export const createApiRouter = (
-  database: DatabaseClient,
-  logger: Logger,
-): Router => {
+export const createApiRouter = (database: DatabaseClient): Router => {
   const router = Router();
-  router.use("/demo", createDemoRouter(database));
-  router.use("/health", createHealthRouter(database, logger));
+
+  const demoService = new DemoService(database);
+  const demoController = new DemoController(demoService);
+
+  const healthService = new HealthService(database);
+  const healthController = new HealthController(healthService);
+
+  router.use("/demo", demoRoutes(demoController));
+  router.use("/health", healthRoutes(healthController));
+
   return router;
 };

@@ -1,5 +1,9 @@
 # Full-Stack TypeScript Boilerplate
 
+> Start with [PROJECT_REFERENCE.md](./PROJECT_REFERENCE.md) for the complete
+> architecture, coding conventions, folder structure, and file-by-file
+> documentation. It is the primary source of truth for this repository.
+
 A reusable, business-logic-free TypeScript monorepo for building a Next.js web
 application and an Express API backed by PostgreSQL.
 

@@ -1,16 +1,12 @@
 import { Router } from "express";
-import type { Logger } from "pino";
 
-import type { DatabaseClient } from "@template/database";
+import type { HealthController } from "./health.controller.js";
 
-import { createReadinessHandler, getLiveness } from "./health.controller.js";
-
-export const createHealthRouter = (
-  database: DatabaseClient,
-  logger: Logger,
-): Router => {
+export const healthRoutes = (controller: HealthController): Router => {
   const router = Router();
-  router.get("/live", getLiveness);
-  router.get("/ready", createReadinessHandler(database, logger));
+
+  router.get("/live", controller.live);
+  router.get("/ready", controller.ready);
+
   return router;
 };

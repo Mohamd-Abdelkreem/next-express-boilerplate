@@ -1,67 +1,74 @@
 import compression from "compression";
 import cors from "cors";
-import express from "express";
+import express, { type Application } from "express";
 import helmet from "helmet";
-import { pinoHttp } from "pino-http";
+import type { CorsOptions } from "cors";
 import type { Logger } from "pino";
 
 import type { DatabaseClient } from "@template/database";
 
-import type { Environment } from "./core/config/environment.js";
-import { ForbiddenError } from "./core/errors/forbidden-error.js";
-import { createRateLimiter } from "./infrastructure/security/rate-limiter.js";
-import { errorHandler } from "./middlewares/error-handler.js";
-import { notFound } from "./middlewares/not-found.js";
-import { requestId } from "./middlewares/request-id.js";
+import { appConfig } from "./core/config/app.config.js";
+import { corsConfig } from "./core/config/cors.config.js";
+import { ForbiddenException } from "./core/errors/forbidden.error.js";
+import {
+  apiRateLimitMiddleware,
+  createRequestLoggerMiddleware,
+  errorHandler,
+  notFound,
+  requestId,
+} from "./middlewares/index.js";
 import { createApiRouter } from "./router.js";
 
 type AppDependencies = Readonly<{
   database: DatabaseClient;
-  environment: Environment;
   logger: Logger;
 }>;
 
+const buildCorsOriginValidator = (): CorsOptions["origin"] => {
+  const allowedOrigins = new Set(corsConfig.allowedOrigins);
+
+  return (origin, callback) => {
+    if (origin === undefined || allowedOrigins.has(origin)) {
+      callback(null, true);
+      return;
+    }
+
+    callback(new ForbiddenException("Origin is not allowed by CORS."));
+  };
+};
+
 export const createApp = ({
   database,
-  environment,
   logger,
-}: AppDependencies) => {
+}: AppDependencies): Application => {
   const app = express();
-  const allowedOrigins = new Set(environment.CORS_ORIGINS);
 
   app.disable("x-powered-by");
   app.set("json escape", true);
-  app.set("trust proxy", environment.TRUST_PROXY);
+  app.set("trust proxy", appConfig.trustProxy);
 
+  const corsOptions: CorsOptions = {
+    origin: buildCorsOriginValidator(),
+    credentials: corsConfig.credentials,
+  };
+
+  // Global middleware
   app.use(requestId);
-  app.use(
-    pinoHttp({
-      logger,
-      genReqId: (request) => request.requestId,
-      customProps: (request) => ({ requestId: request.requestId }),
-    }),
-  );
+  app.use(createRequestLoggerMiddleware(logger));
   app.use(helmet());
-  app.use(
-    cors({
-      credentials: true,
-      origin: (origin, callback) => {
-        if (origin === undefined || allowedOrigins.has(origin)) {
-          callback(null, true);
-          return;
-        }
-        callback(new ForbiddenError("Origin is not allowed by CORS."));
-      },
-    }),
-  );
+  app.use(cors(corsOptions));
   app.use(compression());
-  app.use(express.json({ limit: environment.BODY_LIMIT }));
-  app.use(
-    express.urlencoded({ extended: true, limit: environment.BODY_LIMIT }),
-  );
-  app.use(createRateLimiter(environment));
+  app.use(express.json({ limit: appConfig.bodyLimit }));
+  app.use(express.urlencoded({ extended: true, limit: appConfig.bodyLimit }));
 
-  app.use("/api/v1", createApiRouter(database, logger));
+  // API routes
+  app.use(
+    appConfig.apiPrefix,
+    apiRateLimitMiddleware,
+    createApiRouter(database),
+  );
+
+  // Final middleware
   app.use(notFound);
   app.use(errorHandler);
 

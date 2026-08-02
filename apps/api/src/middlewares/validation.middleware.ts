@@ -1,7 +1,5 @@
 import type { RequestHandler } from "express";
-import { z } from "zod";
-
-import { ValidationError } from "../core/errors/validation-error.js";
+import type { z } from "zod";
 
 type RequestSchemas = Readonly<{
   body?: z.ZodType;
@@ -9,7 +7,7 @@ type RequestSchemas = Readonly<{
   query?: z.ZodType;
 }>;
 
-export const validateRequest =
+export const validationMiddleware =
   (schemas: RequestSchemas): RequestHandler =>
   async (request, _response, next) => {
     const parse = async (
@@ -17,11 +15,7 @@ export const validateRequest =
       value: unknown,
     ): Promise<unknown> => {
       if (schema === undefined) return undefined;
-      const result = await schema.safeParseAsync(value);
-      if (!result.success) {
-        throw new ValidationError(z.treeifyError(result.error));
-      }
-      return result.data;
+      return schema.parseAsync(value);
     };
 
     const [body, params, query] = await Promise.all([
@@ -37,3 +31,5 @@ export const validateRequest =
     };
     next();
   };
+
+export const validateRequest = validationMiddleware;

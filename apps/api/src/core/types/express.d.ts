@@ -1,12 +1,14 @@
+import type {
+  AuthenticatedUser,
+  ValidatedRequestData,
+} from "./request-context.types.js";
+
 declare global {
   namespace Express {
     interface Request {
       requestId: string;
-      validated?: {
-        body?: unknown;
-        params?: unknown;
-        query?: unknown;
-      };
+      user?: AuthenticatedUser;
+      validated?: ValidatedRequestData;
     }
   }
 }

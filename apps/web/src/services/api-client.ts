@@ -2,7 +2,9 @@ type JsonObject = Record<string, unknown>;
 
 type ApiErrorPayload = Readonly<{
   success?: boolean;
-  error?: { code?: unknown; message?: unknown; details?: unknown };
+  code?: unknown;
+  message?: unknown;
+  errors?: unknown;
   requestId?: unknown;
 }>;
 
@@ -96,15 +98,13 @@ export class ApiClient {
         const apiError = payload as ApiErrorPayload | undefined;
         throw new ApiClientError({
           code:
-            typeof apiError?.error?.code === "string"
-              ? apiError.error.code
-              : "HTTP_ERROR",
+            typeof apiError?.code === "string" ? apiError.code : "HTTP_ERROR",
           message:
-            typeof apiError?.error?.message === "string"
-              ? apiError.error.message
+            typeof apiError?.message === "string"
+              ? apiError.message
               : "The request could not be completed.",
           status: response.status,
-          details: apiError?.error?.details,
+          details: apiError?.errors,
           requestId:
             typeof apiError?.requestId === "string"
               ? apiError.requestId
