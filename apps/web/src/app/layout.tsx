@@ -1,23 +1,21 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 
-import "./globals.css";
+import "@/styles/globals.css";
 
 export const metadata: Metadata = {
   title: {
     default: "Tas3eer Pro",
     template: "%s | Tas3eer Pro",
   },
-  description: "Tas3eer Pro web application",
+  description: "A reusable full-stack TypeScript platform foundation.",
 };
 
-type RootLayoutProps = Readonly<{
-  children: ReactNode;
-}>;
+type RootLayoutProps = Readonly<{ children: ReactNode }>;
 
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
-    <html lang="ar" dir="rtl">
+    <html lang="en">
       <body>{children}</body>
     </html>
   );

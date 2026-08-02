@@ -1,159 +1,125 @@
-# Turborepo starter
+# Tas3eer Pro Platform Boilerplate
 
-This Turborepo starter is maintained by the Turborepo core team.
+A reusable, business-logic-free TypeScript monorepo for building a Next.js web
+application and an Express API backed by PostgreSQL.
 
-## Using this example
+## Stack
 
-Run the following command:
+- Node.js 24 LTS and pnpm 11
+- Turborepo with `apps/*` and `packages/*` workspaces
+- Next.js 16 App Router, React 19, Tailwind CSS 4, and React Compiler
+- Express 5, Zod 4, Pino, Helmet, CORS, and rate limiting
+- Prisma ORM 7 with the PostgreSQL driver adapter
+- PostgreSQL 18.4 through Docker Compose
+- Typed ESLint flat configs and a shared Prettier config
 
-```sh
-npx create-turbo@latest
+## Requirements
+
+- Node.js 24
+- pnpm 11 (Corepack is recommended)
+- Docker Desktop or another Docker Engine with Compose v2
+
+## First run
+
+```powershell
+Copy-Item .env.example .env
+Copy-Item apps/web/.env.example apps/web/.env.local
+pnpm install --frozen-lockfile
+docker compose up -d postgres
+pnpm db:generate
+pnpm db:migrate:deploy
+pnpm db:seed
+pnpm dev
 ```
 
-## What's inside?
+The web application is available at <http://localhost:3000>. API health checks
+are available at:
 
-This Turborepo includes the following packages/apps:
+- `GET http://localhost:4000/api/v1/health/live`
+- `GET http://localhost:4000/api/v1/health/ready`
+- `GET http://localhost:4000/api/v1/demo/connection`
 
-### Apps and Packages
+The home page includes a **Test connection** action that calls the demo endpoint
+and reads the seeded `DemoMessage` record through Express, Prisma, and
+PostgreSQL.
 
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
+Example credentials are intentionally local-only. Change them for any shared or
+deployed environment and never commit `.env` files.
 
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
+## Commands
 
-### Utilities
+| Command                  | Purpose                                    |
+| ------------------------ | ------------------------------------------ |
+| `pnpm dev`               | Run all development servers                |
+| `pnpm build`             | Build database, API, and web workspaces    |
+| `pnpm lint`              | Run typed ESLint checks                    |
+| `pnpm check-types`       | Run TypeScript checks                      |
+| `pnpm format`            | Format supported source files              |
+| `pnpm format:check`      | Verify formatting                          |
+| `pnpm db:format`         | Format the Prisma schema                   |
+| `pnpm db:validate`       | Validate Prisma configuration and schema   |
+| `pnpm db:generate`       | Generate Prisma Client                     |
+| `pnpm db:migrate:dev`    | Create and apply a development migration   |
+| `pnpm db:migrate:deploy` | Apply pending migrations                   |
+| `pnpm db:migrate:reset`  | Reset development data and migrations      |
+| `pnpm db:push`           | Prototype schema changes without migration |
+| `pnpm db:studio`         | Open Prisma Studio                         |
+| `pnpm db:seed`           | Upsert the idempotent demo record          |
 
-This Turborepo has some additional tools already setup for you:
+`db:migrate:reset` destroys all data in the configured development schema. Do
+not run it against a shared or production database. Prisma Studio prints its
+local URL when it starts.
 
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
+## Architecture
 
-### Build
-
-To build all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo build
+```text
+apps/
+  api/                  Express API and composition root
+    src/core/           Configuration, errors, responses, and core types
+    src/infrastructure/ Logger and security adapters
+    src/middlewares/    Cross-cutting HTTP middleware
+    src/modules/        Domain modules (health and demo connection)
+  web/                  Next.js App Router application
+    src/app/            Routes, layouts, and route-level boundaries
+    src/features/       Feature-specific UI and behavior
+    src/services/       Generic infrastructure such as API transport
+    src/shared/         Truly reusable UI, hooks, types, and utilities
+    src/styles/         Global styles and design tokens
+packages/
+  database/             Compiled Prisma client factory
+  eslint-config/        Typed flat ESLint configuration factories
+  prettier-config/      Shared formatting policy
+  typescript-config/    Shared Node.js and Next.js compiler policies
 ```
 
-Without global `turbo`, use your package manager:
+Create feature subdirectories only when they contain real code. Future modules
+such as `auth`, `customers`, `projects`, or `payments` belong under the relevant
+app's feature/module directory rather than under generic shared code.
 
-```sh
-cd my-turborepo
-npx turbo build
-pnpm dlx turbo build
-pnpm exec turbo build
+## Environment and deployment notes
+
+The API discovers the workspace root before loading `.env`; the database package
+itself never reads application environment variables. Its exported factory
+requires a validated PostgreSQL connection string. The web app validates only
+`NEXT_PUBLIC_*` values and no secret may use that prefix.
+
+`TRUST_PROXY` accepts `false` or an explicit hop count from 1 through 10. Set it
+to the actual deployment topology; a blanket `true` value is deliberately
+rejected because it can let clients spoof forwarding headers.
+
+The built-in rate-limit memory store is suitable for local development or a
+single API instance. Multi-instance production deployments require a shared
+store such as Redis. Likewise, production should supply secrets through its
+secret manager instead of Compose environment files.
+
+## Production
+
+```powershell
+pnpm build
+pnpm --filter @repo/api start
+pnpm --filter @repo/web start
 ```
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo build --filter=docs
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-```
-
-### Develop
-
-To develop all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo dev
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo dev
-pnpm exec turbo dev
-pnpm exec turbo dev
-```
-
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo dev --filter=web
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo login
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo login
-pnpm exec turbo login
-pnpm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo link
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo link
-pnpm exec turbo link
-pnpm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+The API production command executes compiled JavaScript only, with source-map
+support. Generated Prisma sources and build outputs are intentionally ignored by
+Git and regenerated during database builds and type checks.

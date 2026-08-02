@@ -1,7 +1,17 @@
 import { Router } from "express";
+import type { Logger } from "pino";
 
-import { healthRouter } from "./modules/health/index.js";
+import type { DatabaseClient } from "@repo/database";
 
-export const apiRouter = Router();
+import { createDemoRouter } from "./modules/demo/demo.routes.js";
+import { createHealthRouter } from "./modules/health/health.routes.js";
 
-apiRouter.use("/health", healthRouter);
+export const createApiRouter = (
+  database: DatabaseClient,
+  logger: Logger,
+): Router => {
+  const router = Router();
+  router.use("/demo", createDemoRouter(database));
+  router.use("/health", createHealthRouter(database, logger));
+  return router;
+};
